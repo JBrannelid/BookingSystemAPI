@@ -1,4 +1,5 @@
-﻿using BookingSystemAPI.Data;
+﻿using Azure;
+using BookingSystemAPI.Data;
 using BookingSystemAPI.DTOs.BookingDTO;
 using BookingSystemAPI.Models;
 using Microsoft.EntityFrameworkCore;
@@ -9,17 +10,31 @@ namespace BookingSystemAPI.Endpoints
     {
         public static void RegisterEndpoints(WebApplication app)
         {
-            // ---------- GET all Bookings ------------------ //
-            app.MapGet("/api/bookings", async (AppDbContext dBcontext) =>
+            // ---------- GET all Bookings with pagination ------------- //
+            app.MapGet("/api/bookings", async (AppDbContext dBcontext, int page = 1, int pageSize = 10) =>
             {
-                // Get all bookings with related Customer and Employee data
-                var allBookings = await dBcontext.Bookings
-                    .Include(b => b.Customer)
-                    .Include(b => b.Employee)
-                    .ToListAsync();
+                // Validate pagination parameters
+                if (page < 1) page = 1;
+                if (pageSize < 1) pageSize = 10;
+                if (pageSize > 50) pageSize = 50;
+
+                // Calculate skip count for pagination
+                int skip = (page - 1) * pageSize;
+
+                // Get total count for pagination metadata
+                var totalCount = await dBcontext.Bookings.CountAsync();
+
+                // Get paginated bookings with related Customer and Employee data
+                // Skip and take is the core functionality of pagination!
+                var bookings = await dBcontext.Bookings
+                     .Include(b => b.Customer)
+                     .Include(b => b.Employee)
+                     .Skip(skip)
+                     .Take(pageSize)
+                     .ToListAsync();
 
                 // Map to DTOs to avoid circular references
-                var bookingDtos = allBookings.Select(b => new BookingResponseDto
+                var bookingDtos = bookings.Select(b => new BookingResponseDto
                 {
                     BookingId = b.BookingId,
                     BookingDate = b.BookingDate,
@@ -41,7 +56,15 @@ namespace BookingSystemAPI.Endpoints
                     }
                 }).ToList();
 
-                return Results.Ok(bookingDtos);  // Statuscode - 200 Ok
+                // Create object with result and pagination  
+                return Results.Ok(new
+                {
+                    Bookings = bookingDtos,
+                    TotalCount = totalCount,
+                    Page = page,
+                    PageSize = pageSize,
+                    TotalPages = (int)Math.Ceiling(totalCount / (double)pageSize)
+                });  // Statuscode - 200 Ok
             });
 
             // ---------- GET booking by ID ----------------- //
@@ -136,7 +159,6 @@ namespace BookingSystemAPI.Endpoints
                 // 3. Return
                 return Results.NoContent(); // Statuscode - 204 No Content
             });
-
 
             // ---------- Update booking -------------------- //
             app.MapPut("/api/bookings/{id}", async (AppDbContext dBcontext, int id, BookingCreateDto updateBooking) =>
