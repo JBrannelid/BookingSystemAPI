@@ -21,7 +21,7 @@ namespace BookingSystemAPI.Models
 
         [Required]
         [EmailAddress]
-        public string EmailAdress { get; set; }
+        public string EmailAddress { get; set; }
 
         // Navigation property
         public List<Booking> Bookings { get; set; }

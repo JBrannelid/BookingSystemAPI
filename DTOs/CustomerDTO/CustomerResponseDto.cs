@@ -14,6 +14,6 @@ namespace BookingSystemAPI.DTOs.CustomerDTO
         [Phone]
         public string Number { get; set; }
         [EmailAddress]
-        public string EmailAdress { get; set; }
+        public string EmailAddress { get; set; }
     }
 }

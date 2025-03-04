@@ -46,7 +46,7 @@ namespace BookingSystemAPI.Endpoints
                         FirstName = b.Customer.FirstName,
                         LastName = b.Customer.LastName,
                         Number = b.Customer.Number,
-                        EmailAdress = b.Customer.EmailAdress
+                        EmailAddress = b.Customer.EmailAddress
                     },
                     Employee = new DTOs.EmployeesDTO.EmployeeResponseDto
                     {
@@ -95,7 +95,7 @@ namespace BookingSystemAPI.Endpoints
                         FirstName = booking.Customer.FirstName,
                         LastName = booking.Customer.LastName,
                         Number = booking.Customer.Number,
-                        EmailAdress = booking.Customer.EmailAdress
+                        EmailAddress = booking.Customer.EmailAddress
                     },
                     Employee = new DTOs.EmployeesDTO.EmployeeResponseDto
                     {
@@ -221,7 +221,7 @@ namespace BookingSystemAPI.Endpoints
                         FirstName = b.Customer.FirstName,
                         LastName = b.Customer.LastName,
                         Number = b.Customer.Number,
-                        EmailAdress = b.Customer.EmailAdress
+                        EmailAddress = b.Customer.EmailAddress
                     },
                     Employee = new DTOs.EmployeesDTO.EmployeeResponseDto
                     {

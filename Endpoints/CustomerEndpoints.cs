@@ -20,7 +20,7 @@ namespace BookingSystemAPI.Endpoints
                     FirstName = c.FirstName,
                     LastName = c.LastName,
                     Number = c.Number,
-                    EmailAdress = c.EmailAdress
+                    EmailAddress = c.EmailAddress
                 }).ToListAsync();
 
                 return Results.Ok(CustomerList);  // Statuscode - 200 Ok
@@ -29,17 +29,17 @@ namespace BookingSystemAPI.Endpoints
             // ---------- Get a specifik customer ID dynamic ------------ //
             app.MapGet("/api/customers/{id}", async (AppDbContext dBcontext, int id) =>
             {
-                // Hitta kunden med angivet ID
+                // Find customer with specific Id
                 var selectedCustomer = await dBcontext.Customers.Select(c => new CustomerResponseDto
                 {
                     CustomerId = c.CustomerId,
                     FirstName = c.FirstName,
                     LastName = c.LastName,
                     Number = c.Number,
-                    EmailAdress = c.EmailAdress
+                    EmailAddress = c.EmailAddress
                 }).FirstOrDefaultAsync(c => c.CustomerId == id); 
 
-                // If no employee found, display error code
+                // If no customer found, display error code
                 if (selectedCustomer == null)
                 {
                     return Results.NotFound(); // Statuscode - 404 Not Found
@@ -68,7 +68,7 @@ namespace BookingSystemAPI.Endpoints
                     FirstName = newCustomer.FirstName,
                     LastName = newCustomer.LastName,
                     Number = newCustomer.Number,
-                    EmailAdress = newCustomer.EmailAdress
+                    EmailAddress = newCustomer.EmailAddress
                 };
 
                 // 3. Add object to database
@@ -88,11 +88,11 @@ namespace BookingSystemAPI.Endpoints
                     return Results.NotFound(); // Statuscode - 404 Not Found
                 }
 
-                // 2. Uppdatera kundens information
+                // 2. Update customer information 
                 existingCustomer.FirstName = updateCustomer.FirstName;
                 existingCustomer.LastName = updateCustomer.LastName;
                 existingCustomer.Number = updateCustomer.Number;
-                existingCustomer.EmailAdress = updateCustomer.EmailAdress;
+                existingCustomer.EmailAddress = updateCustomer.EmailAddress;
 
                 // 3. Save changes to dbContext
                 await dBcontext.SaveChangesAsync();
@@ -104,20 +104,16 @@ namespace BookingSystemAPI.Endpoints
             // ---------- Delete an customer --------------------------- //
             app.MapDelete("/api/customers/{id}", async (AppDbContext dBcontext, int id) =>
             {
-                // 1. Find Customer by Id
-                var existingCustomer = await dBcontext.Customers.FirstOrDefaultAsync(c => c.CustomerId == id);
-
+                var existingCustomer = await dBcontext.Customers.FindAsync(id);
                 if (existingCustomer == null)
                 {
-                    return Results.NoContent(); // Statuscode - 204 No Content
+                    return Results.NotFound(); // Statuscode - 404 Not Found
                 }
 
-                // 2. Remove customer from the database and save changes
                 dBcontext.Customers.Remove(existingCustomer);
                 await dBcontext.SaveChangesAsync();
 
-                // 3. Return
-                return Results.Ok(); // Statuscode - 200 Ok
+                return Results.NoContent(); // Statuscode - 204 No Content
             });
         }
     }
