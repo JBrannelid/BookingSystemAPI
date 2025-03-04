@@ -74,7 +74,8 @@ The API consists of three main components:
 
 ```bash
 # Create the database
-dotnet ef database update
+add-migration "init"
+database-update
 
 # Start the application
 dotnet run
